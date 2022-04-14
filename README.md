@@ -1,1 +1,0 @@
-![image description](score.png)
