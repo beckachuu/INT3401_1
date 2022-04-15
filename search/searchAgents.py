@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from turtle import distance, position
 from game import Directions
 from game import Agent
 from game import Actions
@@ -407,25 +408,19 @@ def cornersHeuristic(state, problem):
             unvisitedCorners.append(corners[i])
 
     #calculate the distance from current node to all corner nodes
-    if len(unvisitedCorners) > 0:
-        closestCost = 999999
-        farthestCost = 0
-        closestCornerIndex = 0
-        farthestCornerIndex = 0
-        for i in range(len(unvisitedCorners)):
-            cornerLocation = unvisitedCorners[i]
-            lengthToCorner = util.manhattanDistance(currentPosition, cornerLocation)
-            if lengthToCorner < closestCost:
-                closestCornerIndex = i
-                closestCost = lengthToCorner
-            elif lengthToCorner > farthestCost:
-                farthestCornerIndex = i
-                farthestCost = lengthToCorner
+    while len(unvisitedCorners) > 0:
+        positionToCornersLength = list()
+        for corner in unvisitedCorners:
+            positionToCornersLength.append(util.manhattanDistance(currentPosition, corner))
 
-        closestCorner = unvisitedCorners[closestCornerIndex]
-        farthestCorner = unvisitedCorners[farthestCornerIndex]
-        heuristic = util.manhattanDistance(currentPosition, closestCorner) + util.manhattanDistance(closestCorner, farthestCorner)
-    return heuristic
+        minDistance = min(positionToCornersLength)
+        heuristic += minDistance
+
+        cornerIndex = positionToCornersLength.index(minDistance)
+        position = unvisitedCorners[cornerIndex]
+        unvisitedCorners.pop(cornerIndex)
+
+    return heuristic/2
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -518,8 +513,36 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    "*** YOUR CODE HERE ***" 
+
+    heuristic = 0
+    foodList = foodGrid.asList()
+    
+    if len(foodList) > 0:
+        closestFoodIndex = 0
+        farthestFoodIndex = 0
+        closestFoodCost = util.manhattanDistance( position, foodList[0] )
+        farthestFoodCost = util.manhattanDistance( position, foodList[0] )
+        for i in range(len(foodList)):
+            foodPos = foodList[i]
+            distanceToFood = util.manhattanDistance( position, foodPos )
+            if distanceToFood < closestFoodCost:
+                closestFoodIndex = i
+                closestFoodCost = distanceToFood
+
+            elif distanceToFood > farthestFoodCost:
+                farthestFoodIndex = i
+                farthestFoodCost = distanceToFood
+        
+        closestFood = foodList[closestFoodIndex]
+        farthestFood = foodList[farthestFoodIndex]
+        
+        currentToClosest = mazeDistance(position, closestFood, problem.startingGameState)
+        closestToFarthest = mazeDistance(closestFood, farthestFood, problem.startingGameState)
+        heuristic = currentToClosest + closestToFarthest
+        #heuristic = util.manhattanDistance( position, closestFood )+util.manhattanDistance( position, farthestFood )
+    
+    return heuristic
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -550,7 +573,12 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        startPosition = gameState.getPacmanPosition()
+        food = gameState.getFood()
+        walls = gameState.getWalls()
+        problem = AnyFoodSearchProblem(gameState)
+        
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -586,7 +614,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
