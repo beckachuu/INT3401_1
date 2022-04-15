@@ -519,28 +519,14 @@ def foodHeuristic(state, problem):
     foodList = foodGrid.asList()
     
     if len(foodList) > 0:
-        closestFoodIndex = 0
-        farthestFoodIndex = 0
-        closestFoodCost = util.manhattanDistance( position, foodList[0] )
-        farthestFoodCost = util.manhattanDistance( position, foodList[0] )
+        farthestMazeCost = mazeDistance(position, foodList[0], problem.startingGameState)
         for i in range(len(foodList)):
             foodPos = foodList[i]
-            distanceToFood = util.manhattanDistance( position, foodPos )
-            if distanceToFood < closestFoodCost:
-                closestFoodIndex = i
-                closestFoodCost = distanceToFood
+            mazeDistanceToFood = mazeDistance(position, foodPos, problem.startingGameState)
+            if farthestMazeCost < mazeDistanceToFood:
+                farthestMazeCost = mazeDistanceToFood
 
-            elif distanceToFood > farthestFoodCost:
-                farthestFoodIndex = i
-                farthestFoodCost = distanceToFood
-        
-        closestFood = foodList[closestFoodIndex]
-        farthestFood = foodList[farthestFoodIndex]
-        
-        currentToClosest = mazeDistance(position, closestFood, problem.startingGameState)
-        closestToFarthest = mazeDistance(closestFood, farthestFood, problem.startingGameState)
-        heuristic = currentToClosest + closestToFarthest
-        #heuristic = util.manhattanDistance( position, closestFood )+util.manhattanDistance( position, farthestFood )
+        heuristic = farthestMazeCost
     
     return heuristic
 
