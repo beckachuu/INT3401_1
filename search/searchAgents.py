@@ -558,12 +558,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
-        problem = AnyFoodSearchProblem(gameState)
-        
+        "*** YOUR CODE HERE ***"      
         return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
